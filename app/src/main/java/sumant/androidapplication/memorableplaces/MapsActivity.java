@@ -37,15 +37,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                Location lastKnowLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                centerMapOnLocation(lastKnowLocation, "Your Location");
             }
         }
     }
 
     public void centerMapOnLocation(Location location, String title) {
-        LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-        mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(userLocation).title(title));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
+        if (location != null) {
+            LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(userLocation).title(title));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
+        }
     }
 
     @Override
@@ -90,11 +94,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
             };
-        }
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                Location lastKnowLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                centerMapOnLocation(lastKnowLocation, "Your Location");
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+
+        }
     }
 }
