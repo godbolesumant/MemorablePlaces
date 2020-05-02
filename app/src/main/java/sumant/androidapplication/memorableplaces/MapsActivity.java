@@ -9,6 +9,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -23,7 +25,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     LocationManager locationManager;
     LocationListener locationListener;
@@ -46,9 +53,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void centerMapOnLocation(Location location, String title) {
         if (location != null) {
             LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            mMap.clear();
+            //mMap.clear();
             mMap.addMarker(new MarkerOptions().position(userLocation).title(title));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 13));
         }
     }
 
@@ -67,7 +74,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
+        mMap.setOnMapLongClickListener(this);
 
         Intent intent = getIntent();
         if (intent.getIntExtra("placeNumber", 0) == 0) {
@@ -104,6 +111,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
 
+        } else {
+            Location placelocation = new Location(LocationManager.GPS_PROVIDER);
+            placelocation.setLatitude(MainActivity.location.get(intent.getIntExtra("placeNumber", 0)).latitude);
+            placelocation.setLongitude(MainActivity.location.get(intent.getIntExtra("placeNumber", 0)).longitude);
+            centerMapOnLocation(placelocation, MainActivity.places.get(intent.getIntExtra("placeNumber", 0)));
         }
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        String address = "";
+        try {
+            List<Address> listAddress = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            if (listAddress != null && listAddress.size() > 0) {
+
+                if (listAddress.get(0).getThoroughfare() != null) {
+                    if (listAddress.get(0).getSubThoroughfare() != null) {
+                        address += listAddress.get(0).getSubThoroughfare() + " ";
+                    }
+
+                    address += listAddress.get(0).getThoroughfare();
+
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (address == "") {
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss_dd-MM-yyyy");
+            address += sdf.format(new Date());
+        }
+
+        mMap.addMarker(new MarkerOptions().position(latLng).title(address));
+        MainActivity.places.add(address);
+        MainActivity.location.add(latLng);
+
+        MainActivity.arrayAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "Location saved:", Toast.LENGTH_SHORT).show();
     }
 }
