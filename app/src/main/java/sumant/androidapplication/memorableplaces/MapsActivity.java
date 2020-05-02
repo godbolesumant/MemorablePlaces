@@ -89,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onProviderDisabled(String provider) {
 
                 }
-            }
+            };
         }
 
         // Add a marker in Sydney and move the camera
