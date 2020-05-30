@@ -1,5 +1,7 @@
 package sumant.androidapplication.memorableplaces;
 
+// inside local branch
+
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
