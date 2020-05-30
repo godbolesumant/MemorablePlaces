@@ -165,8 +165,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             sharedPreferences.edit().putString("places", ObjectSerializer.serialize(MainActivity.places)).apply();
-            sharedPreferences.edit().putString("places", ObjectSerializer.serialize(latitudes)).apply();
-            sharedPreferences.edit().putString("places", ObjectSerializer.serialize(longtitudes)).apply();
+            sharedPreferences.edit().putString("lats", ObjectSerializer.serialize(latitudes)).apply();
+            sharedPreferences.edit().putString("longs", ObjectSerializer.serialize(longtitudes)).apply();
 
         }catch(Exception e) {
             e.printStackTrace();
