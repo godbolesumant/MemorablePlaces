@@ -1,6 +1,6 @@
 package sumant.androidapplication.memorableplaces;
 
-// Comment added from master
+// Comment added from Local branch
 
 import android.util.Log;
 
